@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>ذيب 🐺</title>
+  <!-- المكتبات الخارجية -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+  <!-- ربط ملف التنسيقات الخارجية -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <!-- الشريط العلوي -->
+  <header class="app-header">
+    <div class="logo"><i class="fas fa-paw"></i><span>ذيب 🐺</span></div>
+    <div class="header-actions">
+      <div class="status-indicator"><div class="status-dot"></div><span>متصل</span></div>
+      <button class="icon-btn" id="favListBtn" title="المفضلة"><i class="fas fa-heart"></i></button>
+      <button class="icon-btn" id="mobileModeBtn" title="وضع الجوال العمودي"><i class="fas fa-mobile-alt"></i></button>
+      <button class="icon-btn" id="historyBtn" title="سجل المشاهدة"><i class="fas fa-history"></i></button>
+      <button class="icon-btn" id="fullscreenBtn" title="تكبير الشاشة"><i class="fas fa-expand"></i></button>
+    </div>
+  </header>
+
+  <div class="dashboard-wrapper" id="mainLayout">
+    
+    <!-- الحاوية الجانبية -->
+    <div class="sidebar-container">
+      
+      <!-- لوحة التحكم الأساسية -->
+      <aside class="card-panel">
+        <div class="sidebar-title"><i class="fas fa-sliders-h"></i> لوحة التحكم</div>
+        
+        <div class="control-group" id="seasonGroup">
+          <label class="control-label">الموسم</label>
+          <select id="seasonSelect" class="custom-select"></select>
+        </div>
+        
+        <div class="control-group" id="episodeGroup">
+          <label class="control-label">الحلقة</label>
+          <select id="episodeSelect" class="custom-select"></select>
+        </div>
+        
+        <div class="control-group">
+          <label class="control-label">السيرفر</label>
+          <select id="serverSelect" class="custom-select"></select>
+        </div>
+        
+        <button class="btn-primary" id="applyBtn"><i class="fas fa-sync-alt"></i> تحديث</button>
+
+        <!-- لوحة الرابط والنسخ والإرسال -->
+        <div class="url-panel">
+          <div class="url-text" id="urlDisplay">...</div>
+          <div class="url-actions">
+            <button class="btn-sec" id="copyUrlBtn"><i class="fas fa-copy"></i> نسخ</button>
+            <button class="btn-sec" id="openUrlBtn"><i class="fas fa-external-link-alt"></i> إرسال</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- الإعدادات المتقدمة والسحب -->
+      <aside class="card-panel">
+        <div class="sidebar-title"><i class="fas fa-cogs"></i> الإعدادات المتقدمة والسحب</div>
+        
+        <div class="control-group">
+          <label class="control-label">1- النوع</label>
+          <select id="advTypeSelect" class="custom-select">
+            <option value="tv">مسلسل</option>
+            <option value="movie">فيلم</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">2- الاسم (Slug)</label>
+          <input type="text" id="advNameInput" class="form-input" placeholder="مثال: cukur">
+        </div>
+
+        <div class="control-group" id="advSeasonCountGroup">
+          <label class="control-label">3- عدد المواسم (حد أقصى 9)</label>
+          <select id="advSeasonCountSelect" class="custom-select"></select>
+        </div>
+
+        <div class="control-group" id="advEpisodesGroup">
+          <label class="control-label">4- عدد الحلقات لكل موسم</label>
+          <div class="episodes-inputs-grid" id="advEpisodesContainer"></div>
+        </div>
+
+        <div class="adv-actions">
+          <button class="btn-adv fetch" id="advFetchBtn" title="سحب للمكتبة وتشغيل تلقائي"><i class="fas fa-download"></i> سحب</button>
+          <button class="btn-adv clear" id="advClearBtn" title="مسح السجلات المحلية"><i class="fas fa-trash-alt"></i> مسح السجل</button>
+          <button class="btn-adv reset" id="advResetBtn" title="إعادة ضبط افتراضي"><i class="fas fa-undo"></i> إعادة ضبط</button>
+        </div>
+
+        <!-- تحرير المكتبة المضافة -->
+        <div class="control-group" style="margin-top: 6px;">
+          <label class="control-label">⚙️ تحرير المكتبة المضافة</label>
+          <button class="btn-sec" id="manageCustomDbBtn" style="margin-top:3px;"><i class="fas fa-edit"></i> تحرير العناصر المضافة</button>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- منطقة المشغل الرئيسية -->
+    <section class="player-section">
+      <div class="quick-servers-bar" id="quickServersBar"></div>
+
+      <div class="player-wrapper" id="playerWrapper">
+        <div class="player-container">
+          <div class="player-overlay" id="playerOverlay">
+            <div class="loader-ring"></div>
+            <div class="loader-text" style="font-size:0.8rem;color:var(--text-secondary)">جاري التحميل...</div>
+          </div>
+          <iframe id="videoPlayer" allowfullscreen allow="autoplay;fullscreen;encrypted-media;picture-in-picture"></iframe>
+        </div>
+      </div>
+
+      <!-- شريط المكتبة والتنقل -->
+      <div class="under-player-controls">
+        <select id="catalogSelect" class="custom-select"></select>
+        <button class="nav-btn" id="prevEpBtn"><i class="fas fa-step-forward"></i> السابق</button>
+        <button class="nav-btn fav-btn" id="favToggleBtn" title="إضافة للمفضلة"><i class="far fa-heart"></i> المفضلة</button>
+        <button class="nav-btn" id="nextEpBtn">التالي <i class="fas fa-step-backward"></i></button>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- النافذة المنبثقة (Modal) -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle"><i class="fas fa-list"></i> قائمة العناصر</div>
+        <button class="modal-close" id="modalCloseBtn">&times;</button>
+      </div>
+      <div class="modal-search-box hidden" id="modalSearchBox">
+        <input type="text" id="dbSearchInput" class="modal-search-input" placeholder="🔍 ابحث عن اسم المسلسل أو الـ Slug...">
+        <button class="btn-adv clear" id="clearAllCustomBtn" style="padding:0 10px; font-size:0.75rem;"><i class="fas fa-trash-alt"></i> مسح الكل</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- ربط ملف البرمجة والتفاعل الخارجية -->
+  <script src="app.js"></script>
+</body>
+</html>
