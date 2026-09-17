@@ -1,0 +1,45 @@
+name: Static validation
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate required site files and unsafe patterns
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s index.html
+          grep -qi '<!doctype html' index.html
+          grep -qi '<html' index.html
+          grep -qi '<title' index.html
+          if grep -Ein '(javascript:|document\.write\(|eval\(|new Function\()' index.html; then
+            echo 'Unsafe executable pattern found in index.html' >&2
+            exit 1
+          fi
+      - name: Validate HTML structure
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class StrictEnoughParser(HTMLParser):
+              def error(self, message):
+                  raise RuntimeError(message)
+
+          text = Path('index.html').read_text(encoding='utf-8')
+          parser = StrictEnoughParser(convert_charrefs=True)
+          parser.feed(text)
+          parser.close()
+          if '<html' not in text.lower() or '</html>' not in text.lower():
+              raise SystemExit('index.html is missing an html document boundary')
+          PY
